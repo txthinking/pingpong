@@ -20,7 +20,7 @@ if (!/\d+\.\d+\.\d+\.\d+:\d+/.test(args.s) && !args.s.startsWith("[")) {
         var l = s.split("\n");
         for (var i = l.length - 1; i >= 0; i--) {
             if (l[i].startsWith(s.indexOf("Addresses") != -1 ? "Addresses:" : "Address:")) {
-                args.s = joinhostport(l[i].split(":")[1].trim(), splithostport(args.s)[1]);
+                args.s = joinhostport(l[i].replace(s.indexOf("Addresses") != -1 ? "Addresses:" : "Address:", "").trim(), splithostport(args.s)[1]);
                 break;
             }
         }
