@@ -14,9 +14,9 @@ if (args.h || args.help || args.v || args.version || !args.l) {
     var b = new Uint8Array(100);
     for (;;) {
         var l = await c.receive(b);
-        echo(`udp\tsrc: ${joinhostport(l[1].hostname, l[1].port)}\tdst: ${joinhostport(c.addr.hostname, c.addr.port)}\tdata: ${b2s(l[0])}`);
+        echo(`udp src: ${joinhostport(l[1].hostname, l[1].port)} dst: ${joinhostport(c.addr.hostname, c.addr.port)} data: ${b2s(l[0])}`);
         await c.send(s2b(joinhostport(l[1].hostname, l[1].port)), l[1]);
-        echo(`udp\tsrc: ${joinhostport(c.addr.hostname, c.addr.port)}\tdst: ${joinhostport(l[1].hostname, l[1].port)}\tdata: ${joinhostport(l[1].hostname, l[1].port)}`);
+        echo(`udp src: ${joinhostport(c.addr.hostname, c.addr.port)} dst: ${joinhostport(l[1].hostname, l[1].port)} data: ${joinhostport(l[1].hostname, l[1].port)}`);
     }
 })();
 
@@ -30,9 +30,9 @@ for (;;) {
             if (i === null) {
                 return;
             }
-            echo(`tcp\tsrc: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdata: ${b2s(b.slice(0, i))}`);
+            echo(`tcp src: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} dst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} data: ${b2s(b.slice(0, i))}`);
             var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
-            echo(`tcp\tsrc: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdata: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
+            echo(`tcp src: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} dst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} data: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
         }
     })(conn);
 }

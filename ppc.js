@@ -1,4 +1,4 @@
-import { s2b, b2s, joinhostport, echo, splithostport } from "https://raw.githubusercontent.com/txthinking/denolib/master/f.js";
+import { sh1, s2b, b2s, joinhostport, echo, splithostport } from "https://raw.githubusercontent.com/txthinking/denolib/master/f.js";
 import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
@@ -11,6 +11,22 @@ if (args.h || args.help || args.v || args.version || !args.p || (args.p == "udp"
     echo("v20220606");
     Deno.exit(0);
 }
+if (!/\d+\.\d+\.\d+\.\d+:\d+/.test(args.s) && !args.s.startsWith("[")) {
+    if (Deno.build.os != "windows") {
+        args.s = joinhostport((await sh1(`dig +tcp +short ${splithostport(args.s)[0]} @8.8.8.8`)).trim(), splithostport(args.s)[1]);
+    }
+    if (Deno.build.os == "windows") {
+        var s = await sh1(`nslookup -vc ${splithostport(args.s)[0]} 8.8.8.8`);
+        var l = s.split("\n");
+        for (var i = l.length - 1; i >= 0; i--) {
+            if (l[i].startsWith("Address:")) {
+                args.s = joinhostport(l[i].split(":")[1].trim(), splithostport(args.s)[1]);
+                break;
+            }
+        }
+    }
+    echo(`dns ${args.s}`);
+}
 var n = 1;
 if (args.c) {
     n = parseInt(args.c);
@@ -21,10 +37,10 @@ if (args.p == "udp") {
     var c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
     for (var i = 0; i < n; i++) {
         await c.send(data, { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
-        echo(`udp\tsrc: ${joinhostport(c.addr.hostname, c.addr.port)}\tdst: ${args.s}\tdata: ${b2s(data)}`);
+        echo(`udp src: ${joinhostport(c.addr.hostname, c.addr.port)} dst: ${args.s} data: ${b2s(data)}`);
         var b = new Uint8Array(23);
         var l = await c.receive(b);
-        echo(`udp\tsrc: ${joinhostport(l[1].hostname, l[1].port)}\tdst: ${joinhostport(c.addr.hostname, c.addr.port)}\tdata: ${b2s(l[0])}`);
+        echo(`udp src: ${joinhostport(l[1].hostname, l[1].port)} dst: ${joinhostport(c.addr.hostname, c.addr.port)} data: ${b2s(l[0])}`);
     }
     c.close();
 }
@@ -34,9 +50,9 @@ if (args.p == "tcp") {
     var b = new Uint8Array(23);
     for (var j = 0; j < n; j++) {
         var i = await conn.write(data);
-        echo(`tcp\tsrc: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdata: ${b2s(data)}`);
+        echo(`tcp src: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} dst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} data: ${b2s(data)}`);
         var i = await conn.read(b);
-        echo(`tcp\tsrc: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdata: ${b2s(b.slice(0, i))}`);
+        echo(`tcp src: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} dst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} data: ${b2s(b.slice(0, i))}`);
     }
     conn.close();
 }
