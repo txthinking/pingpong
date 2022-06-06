@@ -8,7 +8,7 @@ if (args.h || args.help || args.v || args.version || !args.p || (args.p == "udp"
     echo("$ ppc -p tcp -s 1.2.3.4:7777");
     echo("$ ppc -p tcp -s 1.2.3.4:7777 -c 3");
     echo("");
-    echo("v20220407");
+    echo("v20220606");
     Deno.exit(0);
 }
 var n = 1;
