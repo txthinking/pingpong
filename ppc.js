@@ -36,9 +36,9 @@ var b = new Uint8Array(23);
 var conn = await Deno.connect({ hostname: splithostport(args.s)[0], port: splithostport(args.s)[1], transport: "tcp" });
 for (var j = 0; j < n; j++) {
     var i = await conn.write(data);
-    echo(`tcp src: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} dst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} data: ${b2s(data)}`);
+    echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(data)}`);
     var i = await conn.read(b);
-    echo(`tcp src: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} dst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} data: ${b2s(b.slice(0, i))}`);
+    echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
 }
 conn.close();
 
@@ -56,8 +56,8 @@ for (var p = 7777; true; p++) {
 }
 for (var i = 0; i < n; i++) {
     await c.send(data, { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
-    echo(`udp src: ${joinhostport(c.addr.hostname, c.addr.port)} dst: ${args.s} data: ${b2s(data)}`);
+    echo(`> UDP ${args.s} ${b2s(data)}`);
     var l = await c.receive(b);
-    echo(`udp src: ${joinhostport(l[1].hostname, l[1].port)} dst: ${joinhostport(c.addr.hostname, c.addr.port)} data: ${b2s(l[0])}`);
+    echo(`< UDP ${joinhostport(l[1].hostname, l[1].port)} ${b2s(l[0])}`);
 }
 c.close();
