@@ -2,15 +2,15 @@ import { s2b, b2s, joinhostport, splithostport, echo } from "https://raw.githubu
 import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
-if (args.h || args.help || args.v || args.version || !args.l) {
-    echo("$ pps -l 0.0.0.0:7777 ");
+if (args.h || args.help || args.v || args.version || !args.p) {
+    echo("$ pps -p 7777 ");
     echo("");
     echo("v20220606");
     Deno.exit(0);
 }
 
 (async () => {
-    var c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: parseInt(splithostport(args.l)[1]), transport: "udp" });
+    var c = Deno.listenDatagram({ hostname: "0.0.0.0", port: parseInt(args.p), transport: "udp" });
     var b = new Uint8Array(100);
     for (;;) {
         var l = await c.receive(b);
@@ -20,7 +20,7 @@ if (args.h || args.help || args.v || args.version || !args.l) {
     }
 })();
 
-var c1 = Deno.listen({ hostname: splithostport(args.l)[0], port: parseInt(splithostport(args.l)[1]), transport: "tcp" });
+var c1 = Deno.listen({ hostname: "0.0.0.0", port: parseInt(args.p), transport: "tcp" });
 for (;;) {
     const conn = await c1.accept();
     (async (conn) => {

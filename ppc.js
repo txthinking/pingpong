@@ -32,7 +32,18 @@ if (args.c) {
 
 var data = new Uint8Array([231, 155, 184, 230, 175, 148, 228, 186, 142, 65, 110, 100, 114, 111, 105, 100, 239, 188, 140, 229, 188, 128, 229, 143, 145, 105, 79, 83, 229, 186, 148, 231, 148, 168, 229, 174, 161, 230, 160, 184, 231, 156, 159, 230, 152, 175, 229, 138, 179, 229, 191, 131, 232, 180, 185, 231, 165, 158, 239, 188, 140, 229, 191, 131, 231, 180, 175, 239, 188, 129]);
 
-var c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
+var c;
+for (var p = 7777; true; p++) {
+    try {
+        c = Deno.listenDatagram({ hostname: "0.0.0.0", port: p, transport: "udp" });
+        break;
+    } catch (e) {
+        if (`${e}`.indexOf("Address already in use")) {
+            continue;
+        }
+        throw e;
+    }
+}
 for (var i = 0; i < n; i++) {
     await c.send(data, { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
     echo(`udp src: ${joinhostport(c.addr.hostname, c.addr.port)} dst: ${args.s} data: ${b2s(data)}`);
