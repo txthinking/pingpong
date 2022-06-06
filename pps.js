@@ -3,7 +3,7 @@ import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
 if (args.h || args.help || args.v || args.version || !args.l) {
-    echo("$ pps --l 0.0.0.0:7777 ");
+    echo("$ pps -l 0.0.0.0:7777 ");
     echo("");
     echo("v20220606");
     Deno.exit(0);
