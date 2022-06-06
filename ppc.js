@@ -3,8 +3,8 @@ import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
 if (args.h || args.help || args.v || args.version || !args.p || (args.p == "udp" && !args.l) || !args.s) {
-    echo("$ ppc -p udp -l 127.0.0.1:7777 -s 1.2.3.4:7777");
-    echo("$ ppc -p udp -l 127.0.0.1:7777 -s 1.2.3.4:7777 -c 3");
+    echo("$ ppc -p udp -l 0.0.0.0:7777 -s 1.2.3.4:7777");
+    echo("$ ppc -p udp -l 0.0.0.0:7777 -s 1.2.3.4:7777 -c 3");
     echo("$ ppc -p tcp -s 1.2.3.4:7777");
     echo("$ ppc -p tcp -s 1.2.3.4:7777 -c 3");
     echo("");
@@ -21,10 +21,10 @@ if (args.p == "udp") {
     var c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
     for (var i = 0; i < n; i++) {
         await c.send(data, { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
-        echo(`udp\t\tsrc: ${joinhostport(c.addr.hostname, c.addr.port)}\t\tdst: ${args.s}\t\tdata: ${b2s(data)}`);
+        echo(`udp\tsrc: ${joinhostport(c.addr.hostname, c.addr.port)}\tdst: ${args.s}\tdata: ${b2s(data)}`);
         var b = new Uint8Array(23);
         var l = await c.receive(b);
-        echo(`udp\t\tsrc: ${joinhostport(l[1].hostname, l[1].port)}\t\tdst: ${joinhostport(c.addr.hostname, c.addr.port)}\t\tdata: ${b2s(l[0])}`);
+        echo(`udp\tsrc: ${joinhostport(l[1].hostname, l[1].port)}\tdst: ${joinhostport(c.addr.hostname, c.addr.port)}\tdata: ${b2s(l[0])}`);
     }
     c.close();
 }
@@ -34,9 +34,9 @@ if (args.p == "tcp") {
     var b = new Uint8Array(23);
     for (var j = 0; j < n; j++) {
         var i = await conn.write(data);
-        echo(`tcp\t\tsrc: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\t\tdst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\t\tdata: ${b2s(data)}`);
+        echo(`tcp\tsrc: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdst: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdata: ${b2s(data)}`);
         var i = await conn.read(b);
-        echo(`tcp\t\tsrc: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\t\tdst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\t\tdata: ${b2s(b.slice(0, i))}`);
+        echo(`tcp\tsrc: ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}\tdst: ${joinhostport(conn.localAddr.hostname, conn.localAddr.port)}\tdata: ${b2s(b.slice(0, i))}`);
     }
     conn.close();
 }
