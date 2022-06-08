@@ -24,21 +24,20 @@ var c1 = Deno.listen({ hostname: "0.0.0.0", port: parseInt(args.p), transport: "
 for (;;) {
     try {
         const conn = await c1.accept();
-    } catch (e) {
-        echo(`deno bug?: ${e}`);
-        continue;
-    }
-    (async (conn) => {
-        var b = new Uint8Array(100);
-        for (;;) {
-            var i = await conn.read(b);
-            if (i === null) {
-                conn.close();
-                return;
+        (async (conn) => {
+            var b = new Uint8Array(100);
+            for (;;) {
+                var i = await conn.read(b);
+                if (i === null) {
+                    conn.close();
+                    return;
+                }
+                echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
+                var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
+                echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
             }
-            echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
-            var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
-            echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
-        }
-    })(conn);
+        })(conn);
+    } catch (e) {
+        echo(`${e}`);
+    }
 }
