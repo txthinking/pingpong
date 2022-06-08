@@ -5,7 +5,7 @@ var args = parse(Deno.args);
 if (args.h || args.help || args.v || args.version || !args.p) {
     echo("$ pps -p 7777 ");
     echo("");
-    echo("v20220606");
+    echo("v20220608");
     Deno.exit(0);
 }
 
@@ -22,12 +22,18 @@ if (args.h || args.help || args.v || args.version || !args.p) {
 
 var c1 = Deno.listen({ hostname: "0.0.0.0", port: parseInt(args.p), transport: "tcp" });
 for (;;) {
-    const conn = await c1.accept();
+    try {
+        const conn = await c1.accept();
+    } catch (e) {
+        echo(`deno bug?: ${e}`);
+        continue;
+    }
     (async (conn) => {
         var b = new Uint8Array(100);
         for (;;) {
             var i = await conn.read(b);
             if (i === null) {
+                conn.close();
                 return;
             }
             echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
