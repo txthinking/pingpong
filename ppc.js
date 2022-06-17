@@ -6,7 +6,7 @@ if (args.h || args.help || args.v || args.version || !args.s) {
     echo("$ ppc -s 1.2.3.4:7777");
     echo("$ ppc -s 1.2.3.4:7777 -c 3");
     echo("");
-    echo("v20220608");
+    echo("v20220617");
     Deno.exit(0);
 }
 if (!/\d+\.\d+\.\d+\.\d+:\d+/.test(args.s) && !args.s.startsWith("[")) {
