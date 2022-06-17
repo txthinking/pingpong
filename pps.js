@@ -33,14 +33,14 @@ for (;;) {
                         conn.close();
                         return;
                     }
+                    echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
+                    var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
+                    echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
                 }catch(e) {
                     echo(`${e}`);
                     conn.close();
                     return;
                 }
-                echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
-                var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
-                echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
             }
         })(conn);
     } catch (e) {
