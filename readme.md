@@ -11,7 +11,7 @@ nami install pingpong
 Server
 
 ```
-pps -p 7777
+pps -l :7777
 ```
 
 Client

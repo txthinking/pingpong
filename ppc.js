@@ -3,9 +3,10 @@ import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
 if (args.h || args.help || args.v || args.version || !args.l || !args.s) {
-    echo("$ ppc -l 1.2.3.4:7777 -s 1.2.3.4:7777");
-    echo("$ ppc -l 5.6.7.8:7777 -s 1.2.3.4:7777 -c 3");
-    echo("    note: -l used by UDP");
+    echo("$ ppc -s 1.2.3.4:7777");
+    echo("$ ppc -l 5.6.7.8:4444 -s 1.2.3.4:7777 -c 3");
+    echo("");
+    echo("    note: -l local listen address used by UDP, default is 0.0.0.0:0");
     echo("");
     echo("v20220621");
     Deno.exit(0);
@@ -48,7 +49,23 @@ for (var j = 0; j < n; j++) {
 }
 conn.close();
 
-var c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
+var c;
+if (args.l) {
+    c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
+}
+if (!args.l) {
+    for (var p = 7777; true; p++) {
+        try {
+            c = Deno.listenDatagram({ hostname: "0.0.0.0", port: p, transport: "udp" });
+            break;
+        } catch (e) {
+            if (`${e}`.indexOf("Address already in use")) {
+                continue;
+            }
+            throw e;
+        }
+    }
+}
 for (var i = 0; i < n; i++) {
     await c.send(s2b(joinhostport(c.addr.hostname, c.addr.port)), { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
     var l = await c.receive(b);
