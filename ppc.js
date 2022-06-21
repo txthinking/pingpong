@@ -54,7 +54,7 @@ if (args.l) {
     c = Deno.listenDatagram({ hostname: splithostport(args.l)[0], port: splithostport(args.l)[1], transport: "udp" });
 }
 if (!args.l) {
-    for (var p = 7777; true; p++) {
+    for (var p = 6789; true; p++) {
         try {
             c = Deno.listenDatagram({ hostname: "0.0.0.0", port: p, transport: "udp" });
             break;
