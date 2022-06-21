@@ -23,22 +23,21 @@ if (!/\d+\.\d+\.\d+\.\d+:\d+/.test(args.s) && !args.s.startsWith("[")) {
             }
         }
     }
-    echo(`dns ${args.s}`);
+    echo(`DNS: ${args.s}`);
 }
 var n = 1;
 if (args.c) {
     n = parseInt(args.c);
 }
 
-var data = new Uint8Array([231, 155, 184, 230, 175, 148, 228, 186, 142, 65, 110, 100, 114, 111, 105, 100, 239, 188, 140, 229, 188, 128, 229, 143, 145, 105, 79, 83, 229, 186, 148, 231, 148, 168, 229, 174, 161, 230, 160, 184, 231, 156, 159, 230, 152, 175, 229, 138, 179, 229, 191, 131, 232, 180, 185, 231, 165, 158, 239, 188, 140, 229, 191, 131, 231, 180, 175, 239, 188, 129]);
 var b = new Uint8Array(23);
 
 var conn = await Deno.connect({ hostname: splithostport(args.s)[0], port: splithostport(args.s)[1], transport: "tcp" });
 for (var j = 0; j < n; j++) {
-    var i = await conn.write(data);
-    echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(data)}`);
+    var i = await conn.write(s2b(joinhostport(conn.localAddr.hostname, conn.localAddr.port)));
+    echo(`TCP: src:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} -> dst:proxy -> src:proxy -> dst:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
     var i = await conn.read(b);
-    echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
+    echo(`TCP: dst:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} <- src:proxy <- dst:${b2s(b.slice(0, i))} <- src:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
 }
 conn.close();
 
@@ -49,15 +48,16 @@ for (var p = 7777; true; p++) {
         break;
     } catch (e) {
         if (`${e}`.indexOf("Address already in use")) {
+            echo(e);
             continue;
         }
         throw e;
     }
 }
 for (var i = 0; i < n; i++) {
-    await c.send(data, { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
-    echo(`> UDP ${args.s} ${b2s(data)}`);
+    await c.send(s2b(joinhostport(c.addr.hostname, c.addr.port)), { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
+    echo(`UDP: src:${joinhostport(c.addr.hostname, c.addr.port)} -> dst:proxy -> src:proxy -> dst:${args.s}`);
     var l = await c.receive(b);
-    echo(`< UDP ${joinhostport(l[1].hostname, l[1].port)} ${b2s(l[0])}`);
+    echo(`UDP: dst:${joinhostport(c.addr.hostname, c.addr.port)} <- src:proxy <- dst:${b2s(l[0])} <- src:${joinhostport(l[1].hostname, l[1].port)}`);
 }
 c.close();

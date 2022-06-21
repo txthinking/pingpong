@@ -14,9 +14,15 @@ if (args.h || args.help || args.v || args.version || !args.p) {
     var b = new Uint8Array(100);
     for (;;) {
         var l = await c.receive(b);
-        echo(`< UDP ${joinhostport(l[1].hostname, l[1].port)} ${b2s(l[0])}`);
         await c.send(s2b(joinhostport(l[1].hostname, l[1].port)), l[1]);
-        echo(`> UDP ${joinhostport(l[1].hostname, l[1].port)} ${joinhostport(l[1].hostname, l[1].port)}`);
+        if (joinhostport(l[1].hostname, l[1].port) == b2s(l[0])) {
+            echo(`UDP: dst:${joinhostport(c.addr.hostname, c.addr.port)} <- src:${joinhostport(l[1].hostname, l[1].port)}`);
+            echo(`UDP: src:${joinhostport(c.addr.hostname, c.addr.port)} -> dst:${joinhostport(l[1].hostname, l[1].port)}`);
+        }
+        if (joinhostport(l[1].hostname, l[1].port) != b2s(l[0])) {
+            echo(`UDP: dst:${joinhostport(c.addr.hostname, c.addr.port)} <- src:${joinhostport(l[1].hostname, l[1].port)} <- dst:proxy <- src:${b2s(l[0])}`);
+            echo(`UDP: src:${joinhostport(c.addr.hostname, c.addr.port)} -> dst:${joinhostport(l[1].hostname, l[1].port)} -> src:proxy -> ${b2s(l[0])}`);
+        }
     }
 })();
 
@@ -27,16 +33,22 @@ for (;;) {
         (async (conn) => {
             var b = new Uint8Array(100);
             for (;;) {
-                try{
+                try {
                     var i = await conn.read(b);
                     if (i === null) {
                         conn.close();
                         return;
                     }
-                    echo(`< TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${b2s(b.slice(0, i))}`);
                     var i = await conn.write(s2b(joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)));
-                    echo(`> TCP ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} ${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
-                }catch(e) {
+                    if (joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port) == b2s(b.slice(0, i))) {
+                        echo(`TCP: dst:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} <- src:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
+                        echo(`TCP: src:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} -> dst:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)}`);
+                    }
+                    if (joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port) != b2s(b.slice(0, i))) {
+                        echo(`TCP: dst:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} <- src:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} <- dst:proxy <- src:${b2s(b.slice(0, i))}`);
+                        echo(`TCP: src:${joinhostport(conn.localAddr.hostname, conn.localAddr.port)} -> dst:${joinhostport(conn.remoteAddr.hostname, conn.remoteAddr.port)} -> src:proxy -> dst:${b2s(b.slice(0, i))}`);
+                    }
+                } catch (e) {
                     echo(`${e}`);
                     conn.close();
                     return;
