@@ -2,7 +2,7 @@ import { sh1, s2b, b2s, joinhostport, echo, splithostport } from "https://raw.gi
 import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
 var args = parse(Deno.args);
-if (args.h || args.help || args.v || args.version || !args.l || !args.s) {
+if (args.h || args.help || args.v || args.version || !args.s) {
     echo("$ ppc -s 1.2.3.4:7777");
     echo("$ ppc -l 5.6.7.8:4444 -s 1.2.3.4:7777 -c 3");
     echo("");

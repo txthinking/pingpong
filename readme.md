@@ -12,6 +12,7 @@ Server
 
 ```
 pps -l :7777
+pps -l 1.2.3.4:7777
 ```
 
 Client
