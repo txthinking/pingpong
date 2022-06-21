@@ -48,10 +48,8 @@ for (var p = 6789; true; p++) {
         break;
     } catch (e) {
         if (`${e}`.indexOf("Address already in use")) {
-            echo(e);
             continue;
         }
-        // unstable API, cannot catch :(
         throw e;
     }
 }
