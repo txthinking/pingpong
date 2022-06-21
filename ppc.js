@@ -6,7 +6,7 @@ if (args.h || args.help || args.v || args.version || !args.s) {
     echo("$ ppc -s 1.2.3.4:7777");
     echo("$ ppc -s 1.2.3.4:7777 -c 3");
     echo("");
-    echo("v20220617");
+    echo("v20220621");
     Deno.exit(0);
 }
 if (!/\d+\.\d+\.\d+\.\d+:\d+/.test(args.s) && !args.s.startsWith("[")) {
@@ -42,7 +42,7 @@ for (var j = 0; j < n; j++) {
 conn.close();
 
 var c;
-for (var p = 7777; true; p++) {
+for (var p = 6789; true; p++) {
     try {
         c = Deno.listenDatagram({ hostname: "0.0.0.0", port: p, transport: "udp" });
         break;
@@ -51,9 +51,11 @@ for (var p = 7777; true; p++) {
             echo(e);
             continue;
         }
+        // unstable API, cannot catch :(
         throw e;
     }
 }
+echo(`UDP PORT: ${p}`);
 for (var i = 0; i < n; i++) {
     await c.send(s2b(joinhostport(c.addr.hostname, c.addr.port)), { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
     echo(`UDP: src:${joinhostport(c.addr.hostname, c.addr.port)} -> dst:proxy -> src:proxy -> dst:${args.s}`);

@@ -5,7 +5,7 @@ var args = parse(Deno.args);
 if (args.h || args.help || args.v || args.version || !args.p) {
     echo("$ pps -p 7777 ");
     echo("");
-    echo("v20220617");
+    echo("v20220621");
     Deno.exit(0);
 }
 
