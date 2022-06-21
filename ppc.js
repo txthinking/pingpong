@@ -6,7 +6,7 @@ if (args.h || args.help || args.v || args.version || !args.s) {
     echo("$ ppc -s 1.2.3.4:7777");
     echo("$ ppc -l 5.6.7.8:4444 -s 1.2.3.4:7777 -c 3");
     echo("");
-    echo("    note: -l local listen address used by UDP, default is 0.0.0.0:0");
+    echo("    note: -l local listen address used by UDP, default is 0.0.0.0:0. It is recommended to explicitly listen");
     echo("");
     echo("v20220621");
     Deno.exit(0);
@@ -65,6 +65,7 @@ if (!args.l) {
             throw e;
         }
     }
+    echo(`UDP LOCAL: 0.0.0.0:${p}`);
 }
 for (var i = 0; i < n; i++) {
     await c.send(s2b(joinhostport(c.addr.hostname, c.addr.port)), { transport: "udp", hostname: splithostport(args.s)[0], port: parseInt(splithostport(args.s)[1]) });
